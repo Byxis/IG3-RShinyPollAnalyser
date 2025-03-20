@@ -29,9 +29,8 @@ names(data) <- c(
 # Define color palettes for plots
 color_palettes <- list(
     "Default" = NULL,
+    "Pastel Rose et Bleu" = c("#FF9999", "#FFB3B3", "#FFC6C6", "#CCE5FF", "#99CCFF", "#66B2FF"),
     "Pastel Distincts" = c("#CAE8FF", "#AEDFF7", "#C7FFDA", "#E1FFD1", "#FFFFC7", "#FFDFB0", "#FFCBC7", "#F1CAF9", "#DFCCFF", "#C4E0E7"),
-    "Pastel Chaud" = c("#FFD6C0", "#FFC3C3", "#FFB6B9", "#FFDFD3", "#FFAF87", "#FFC4E1", "#FFE6E6", "#FFCCB3", "#FFA8A8", "#FCBAD3"),
-    "Pastel Froid" = c("#CCFAFF", "#BDF2FF", "#A5DFEC", "#C8F3FA", "#D5F7FF", "#C2E9FF", "#BADFFF", "#C4D4FF", "#D6E7FF", "#D8EEFF"),
     "Viridis" = viridis_pal(option = "viridis")(10),
     "Plasma" = viridis_pal(option = "plasma")(10),
     "Inferno" = viridis_pal(option = "inferno")(10),
@@ -40,6 +39,8 @@ color_palettes <- list(
     "Dégradé Orange" = colorRampPalette(c("#fff5e6", "#ff8000"))(10),
     "Arc-en-ciel" = rainbow(10),
     "Pastels" = c("#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6", "#ffffcc", "#e5d8bd", "#fddaec", "#f2f2f2"),
+    "Pastel Chaud" = c("#FFD6C0", "#FFC3C3", "#FFB6B9", "#FFDFD3", "#FFAF87", "#FFC4E1", "#FFE6E6", "#FFCCB3", "#FFA8A8", "#FCBAD3"),
+    "Pastel Froid" = c("#CCFAFF", "#BDF2FF", "#A5DFEC", "#C8F3FA", "#D5F7FF", "#C2E9FF", "#BADFFF", "#C4D4FF", "#D6E7FF", "#D8EEFF"),
     "Qualitatif" = brewer.pal(8, "Set2")
 )
 
