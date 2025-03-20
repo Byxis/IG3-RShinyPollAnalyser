@@ -228,7 +228,7 @@ ui <- fluidPage(
                     "Texte blanc" = "white",
                     "Texte avec contour" = "shadow"
                 ),
-                selected = "shadow"
+                selected = "black"
             ),
             checkboxInput("useFilter", "Filtrer par la réponse à une autre question", FALSE),
             conditionalPanel(
