@@ -46,15 +46,23 @@ color_palettes <- list(
 
 # Function to create a plot based on user inputs
 createPlot <- function(visualType, selectedQ, compareQ = NULL, df, df_compare = NULL,
-                                             question_titles, selected_palette, textStyle = "shadow") {
+                       question_titles, selected_palette, textStyle = "shadow", filterInfo = NULL) {
     question_text <- question_titles[which(paste0("Q", 1:19) == selectedQ)]
-
+    
+    base_title <- question_text
+    if (!is.null(filterInfo) && filterInfo != "") {
+        base_title <- paste0(base_title, "\n[Filtré par: ", filterInfo, "]")
+    }
+    
+    total_responses <- sum(df$Nombre)
+    base_title <- paste0(base_title, "\n(", total_responses, " réponses)")
+    
     # Bar chart
     if (visualType == "bar") {
         p <- ggplot(df, aes(x = Réponse, y = Nombre, fill = Réponse)) +
             geom_bar(stat = "identity") +
             labs(
-                title = question_text,
+                title = base_title,
                 x = "Réponse",
                 y = "Nombre de réponses"
             ) +
@@ -89,7 +97,7 @@ createPlot <- function(visualType, selectedQ, compareQ = NULL, df, df_compare = 
             geom_bar(stat = "identity", width = 1) +
             coord_polar("y", start = 0) +
             labs(
-                title = question_text,
+                title = base_title,
                 x = NULL, y = NULL, fill = "Réponse"
             ) +
             theme_minimal() +
@@ -119,11 +127,15 @@ createPlot <- function(visualType, selectedQ, compareQ = NULL, df, df_compare = 
     # Comparison chart
     else if (visualType == "compare") {
         compare_text <- question_titles[which(paste0("Q", 1:19) == compareQ)]
+        total_responses <- sum(df_compare$count)
+        
+        compare_title <- paste0(base_title, " vs ", compare_text, 
+                               "\n(", total_responses, " réponses)")
 
         p <- ggplot(df_compare, aes(x = !!sym(selectedQ), y = count, fill = !!sym(compareQ))) +
             geom_bar(stat = "identity", position = "stack") +
             labs(
-                title = paste(question_text, "vs", compare_text),
+                title = compare_title,
                 x = question_text,
                 y = "Nombre de réponses",
                 fill = compare_text
@@ -317,6 +329,16 @@ server <- function(input, output, session) {
         return(result)
     })
 
+    # Create filter info text for titles
+    getFilterInfo <- reactive({
+        if(input$useFilter && !is.null(input$filterValue) && length(input$filterValue) > 0) {
+            filter_q_text <- question_titles[which(paste0("Q", 1:19) == input$filterQuestion)]
+            filter_values <- paste(input$filterValue, collapse = ", ")
+            return(paste0(filter_q_text, " = ", filter_values))
+        }
+        return("")
+    })
+
     # Display plot
     output$resultPlot <- renderPlot({
         createPlot(
@@ -327,7 +349,8 @@ server <- function(input, output, session) {
             df_compare = comparisonStats(),
             question_titles = question_titles,
             selected_palette = color_palettes[[input$colorPalette]],
-            textStyle = input$textStyle
+            textStyle = input$textStyle,
+            filterInfo = getFilterInfo()
         )
     })
 
@@ -361,7 +384,18 @@ server <- function(input, output, session) {
     # Handle plot download
     output$downloadPlot <- downloadHandler(
         filename = function() {
-            paste("graphique-", input$question, ".png", sep = "")
+            base_name <- paste0("graphique-", input$visualType, "-", input$question)
+            
+            if(input$visualType == "compare") {
+                base_name <- paste0(base_name, "-vs-", input$compareQuestion)
+            }
+            
+            if(input$useFilter && !is.null(input$filterValue) && length(input$filterValue) > 0) {
+                base_name <- paste0(base_name, "-filtre-", input$filterQuestion)
+            }
+            
+            base_name <- paste0(base_name, "-", format(Sys.time(), "%Y%m%d-%H%M%S"), ".png")
+            return(base_name)
         },
         content = function(file) {
             p <- createPlot(
@@ -372,7 +406,8 @@ server <- function(input, output, session) {
                 df_compare = comparisonStats(),
                 question_titles = question_titles,
                 selected_palette = color_palettes[[input$colorPalette]],
-                textStyle = input$textStyle
+                textStyle = input$textStyle,
+                filterInfo = getFilterInfo()
             )
 
             ggsave(file, plot = p, width = 10, height = 7, units = "in", dpi = 300)
