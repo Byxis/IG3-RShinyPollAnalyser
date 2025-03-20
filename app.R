@@ -259,14 +259,17 @@ server <- function(input, output, session) {
         choices <- unique(data[[filterQ]])
         choices <- choices[!is.na(choices) & choices != ""]
 
-        selectInput("filterValue", "Filtrer par cette réponse :", choices = choices)
+        selectizeInput("filterValue", "Filtrer par ces réponses :", 
+                 choices = choices,
+                 multiple = TRUE,
+                 options = list(plugins = list('remove_button')))
     })
 
     filteredData <- reactive({
         result <- data
 
-        if (input$useFilter && !is.null(input$filterValue)) {
-            result <- result[result[[input$filterQuestion]] == input$filterValue, ]
+        if (input$useFilter && !is.null(input$filterValue) && length(input$filterValue) > 0) {
+            result <- result[result[[input$filterQuestion]] %in% input$filterValue, ]
         }
 
         return(result)
